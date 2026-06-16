@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ku">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ئەپەکانی GEE کوردستان</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            direction: rtl;
+        }
+        
+        .app-container {
+            max-width: 414px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+        }
+        
+        .status-bar {
+            height: 44px;
+            background: rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+        
+        .student-name {
+            font-size: 12px;
+            opacity: 0.8;
+            font-weight: 600;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 0 0 20px 20px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px 10px;
+            text-align: center;
+            background: none;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: -1;
+        }
+        
+        .tab:hover::before {
+            opacity: 0.1;
+        }
+        
+        .tab.active {
+            color: #fff;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .tab.active::before {
+            opacity: 0;
+        }
+        
+        .tab-icon {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+        
+        .tab.active .tab-icon {
+            transform: scale(1.1);
+        }
+        
+        .tab-text {
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .app-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .app-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .app-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .app-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+        
+        .app-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .app-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .ndvi { background: linear-gradient(135deg, #4CAF50, #8BC34A); }
+        .elevation { background: linear-gradient(135deg, #FF9800, #FF5722); }
+        .lulc { background: linear-gradient(135deg, #9C27B0, #E91E63); }
+        .climate { background: linear-gradient(135deg, #2196F3, #03A9F4); }
+        .satellite { background: linear-gradient(135deg, #607D8B, #455A64); }
+        .urban { background: linear-gradient(135deg, #FF5722, #F44336); }
+        
+        .menu-section {
+            padding: 10px 0;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-left: 15px;
+        }
+        
+        .menu-content {
+            flex: 1;
+        }
+        
+        .menu-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .menu-desc {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        @media (max-width: 480px) {
+            .app-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>📡 🔋</span>
+        </div>
+        
+        <div class="header">
+            <h1>ئەپڵیکەیشنەکانی شیکاری زەوی</h1>
+            <p>بەشی جوگرافیا، زانکۆی راپەڕین</p>
+            <p class="student-name">خوێندکار: نوزاد رسوڵ محمد</p>
+        </div>
+        
+        <div class="nav-tabs">
+            <button class="tab active" onclick="showTab('main')">
+                <span class="tab-icon">🏠</span>
+                <span class="tab-text">سەرەکی</span>
+            </button>
+            <button class="tab" onclick="showTab('secondary')">
+                <span class="tab-icon">🛰️</span>
+                <span class="tab-text">لاوەکی</span>
+            </button>
+            <button class="tab" onclick="showTab('menu')">
+                <span class="tab-icon">ℹ️</span>
+                <span class="tab-text">دەربارە</span>
+            </button>
+        </div>
+        
+        <div class="content">
+            <div id="main" class="tab-content active">
+                <div class="app-grid">
+                    <a href="https://nawzadrasul22.users.earthengine.app/view/ndvi-iraq" class="app-card">
+                        <div class="app-icon ndvi">🌱</div>
+                        <div class="app-title">NDVI کوردی</div>
+                        <div class="app-desc">پێوانەی سەوزایی ڕووەکەکان</div>
+                    </a>
+                    
+                    <a href="https://nawzadrasul22.users.earthengine.app/view/geo-iraq-ndvi" class="app-card">
+                        <div class="app-icon ndvi">🌿</div>
+                        <div class="app-title">NDVI ئینگلیزی</div>
+                        <div class="app-desc">شیکردنەوەی سەوزایی بە ئینگلیزی</div>
+                    </a>
+                    
+                    <a href="https://nawzadrasul22.users.earthengine.app/view/elevation-iraq" class="app-card">
+                        <div class="app-icon elevation">🏔️</div>
+                        <div class="app-title">بەرزی</div>
+                        <div class="app-desc">نەخشەی بەرزی زەوی</div>
+                    </a>
+                    
+                    <a href="https://nawzadrasul22.users.earthengine.app/view/bakarhenany-zawy-ranya" class="app-card">
+                        <div class="app-icon lulc">🗺️</div>
+                        <div class="app-title">بەکارهێنانی زەوی</div>
+                        <div class="app-desc">LULC ڕانیە</div>
+                    </a>
+                    
+                    <a href="https://nawzadrasul22.users.earthengine.app/view/lst-graduation" class="app-card">
+                        <div class="app-icon urban">🏙️</div>
+                        <div class="app-title">گەرمی شار</div>
+                        <div class="app-desc">دوورگەی گەرمی شارستانی</div>
+                    </a>
+                </div>
+            </div>
+            
+            <div id="secondary" class="tab-content">
+                <div class="app-grid">
+                    <a href="https://kirdstanhassan.users.earthengine.app/view/sentinle2-iraq" class="app-card">
+                        <div class="app-icon satellite">📡</div>
+                        <div class="app-title">Sentinel 2 & Landsat</div>
+                        <div class="app-desc">وێنەی مانگەواری</div>
+                    </a>
+                    
+                    <a href="https://ee-env-ranya-kurdistan.projects.earthengine.app/view/ranya-land-cover" class="app-card">
+                        <div class="app-icon lulc">🌍</div>
+                        <div class="app-title">LULC ڕانیە</div>
+                        <div class="app-desc">داپۆشینی زەوی ڕانیە</div>
+                    </a>
+                    
+                    <a href="https://ee-env-ranya-kurdistan.projects.earthengine.app/view/climate" class="app-card">
+                        <div class="app-icon climate">🌤️</div>
+                        <div class="app-title">کەشوهەوا</div>
+                        <div class="app-desc">زانیاری کەشوهەوا</div>
+                    </a>
+                    
+                    <a href="https://kirdstanhassan.users.earthengine.app/view/ranya-change-detection" class="app-card">
+                        <div class="app-icon satellite">🔍</div>
+                        <div class="app-title">گۆڕانکاری ڕانیە</div>
+                        <div class="app-desc">دۆزینەوەی گۆڕانکاری</div>
+                    </a>
+                    
+                    <a href="https://kirdstanhassan.users.earthengine.app/view/lulc-ranya-2024" class="app-card">
+                        <div class="app-icon lulc">📊</div>
+                        <div class="app-title">LULC ڕانیە ٢٠٢٤</div>
+                        <div class="app-desc">بەکارهێنانی زەوی ٢٠٢٤</div>
+                    </a>
+                    
+                    <a href="https://kirdstanhassan.users.earthengine.app/view/uhi-iraq" class="app-card">
+                        <div class="app-icon urban">🌡️</div>
+                        <div class="app-title">UHI عێراق</div>
+                        <div class="app-desc">دوورگەی گەرمی شارستانی</div>
+                    </a>
+                    
+                    <a href="https://kirdstanhassan.users.earthengine.app/view/urban-expansion" class="app-card">
+                        <div class="app-icon urban">🏗️</div>
+                        <div class="app-title">فراوانبوونی شار</div>
+                        <div class="app-desc">گەشەی شارستانی</div>
+                    </a>
+                </div>
+            </div>
+            
+            <div id="menu" class="tab-content">
+                <div class="menu-section">
+                    <div class="menu-item">
+                        <div class="menu-icon">ℹ️</div>
+                        <div class="menu-content">
+                            <div class="menu-title">دەربارە</div>
+                            <div class="menu-desc">ئەم ئەپڵیکەیشنە بەشێکە لە پڕۆژەکانی نامەی ماستەر</div>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <div class="menu-icon">📞</div>
+                        <div class="menu-content">
+                            <div class="menu-title">پەیوەندی</div>
+                            <div class="menu-desc">٠٧٥١١٠٥١٤٧٧</div>
+                        </div>
+                    </div>
+                    
+                    <a href="https://uor.edu.krd/ku/" class="menu-item" style="text-decoration: none; color: inherit;">
+                        <div class="menu-icon">🏫</div>
+                        <div class="menu-content">
+                            <div class="menu-title">زانکۆی راپەڕین</div>
+                            <div class="menu-desc">https://uor.edu.krd/ku/</div>
+                        </div>
+                    </a>
+                    
+                    <div class="menu-item">
+                        <div class="menu-icon">⚙️</div>
+                        <div class="menu-content">
+                            <div class="menu-title">ڕێکخستنەکان</div>
+                            <div class="menu-desc">ڕێکخستنی ئەپڵیکەیشن</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected content and activate tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
