@@ -11,9 +11,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-    </style>
-</head>
-    
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -272,15 +270,15 @@
         </div>
         
         <div class="nav-tabs">
-            <button class="tab active" onclick="showTab('main')">
+            <button class="tab active" onclick="showTab('main', event)">
                 <span class="tab-icon">🏠</span>
                 <span class="tab-text">سەرەکی</span>
             </button>
-            <button class="tab" onclick="showTab('secondary')">
+            <button class="tab" onclick="showTab('secondary', event)">
                 <span class="tab-icon">🛰️</span>
                 <span class="tab-text">لاوەکی</span>
             </button>
-            <button class="tab" onclick="showTab('menu')">
+            <button class="tab" onclick="showTab('menu', event)">
                 <span class="tab-icon">ℹ️</span>
                 <span class="tab-text">دەربارە</span>
             </button>
@@ -406,20 +404,15 @@
     </div>
     
     <script>
-        function showTab(tabName) {
-            // Hide all content
+        function showTab(tabName, event) {
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
-            
-            // Remove active from all tabs
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
-            // Show selected content and activate tab
             document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
+            event.currentTarget.classList.add('active');
         }
     </script>
 </body>
